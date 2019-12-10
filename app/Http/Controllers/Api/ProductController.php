@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 Use App\Models\Product;
+use App\Http\Requests\StoreUpdateProductFormRequest;
 
 class ProductController extends Controller
 {
@@ -20,9 +21,9 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = $this->product->paginate($this->totalPage);
+        $products = $this->product->getResults($request->all(), $this->totalPage);
 
         return response()->json($products);
     }
@@ -33,9 +34,12 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreUpdateProductFormRequest $request)
     {
-        //
+        $product = $this->product->create($request->all());
+
+        return response()->json($product, 201);
+        
     }
 
     /**
@@ -46,7 +50,11 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        //
+        if(!$product = $this->product->find($id))
+            return response()->json(['error' => 'not found'], 404);
+
+        return response()->json($product);
+
     }
 
     /**
@@ -56,9 +64,15 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(StoreUpdateProductFormRequest $request, $id)
     {
-        //
+
+        if(!$product = $this->product->find($id))
+            return response()->json(['error' => 'not found'], 404);
+
+        $product->update($request->all());
+
+        return response()->json($product);
     }
 
     /**
@@ -69,6 +83,12 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        //
+        if(!$product = $this->product->find($id))
+            return response()->json(['error' => 'not found'], 404);
+
+        $product->delete();
+
+        return response()->json(['success' => true], 204);
+        
     }
 }
