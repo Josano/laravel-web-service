@@ -5,6 +5,9 @@ $this->post('categories', 'Api\CategoryController@store');
 $this->put('categories/{id}', 'Api\CategoryController@update');
 $this->delete('categories/{id}', 'Api\CategoryController@delete');*/
 
-$this->apiresource('categories', 'Api\CategoryController');
-
-$this->apiresource('products', 'Api\ProductController');
+$this->group(['prefix' => 'v1', 'namespace' => 'Api\v1'], function () {
+    $this->get('categories/{id}/products', 'CategoryController@products');
+    $this->apiresource('categories', 'CategoryController');
+    
+    $this->apiresource('products', 'ProductController');
+});
